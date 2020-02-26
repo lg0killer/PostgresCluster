@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  master-db:
+    container_name: master-db
+    hostname: master-db
+    build: ./master
+    networks:
+      - test
+    volumes:
+      - master-db:/var/lib/postgresql/data
+      - ./master-posgres.conf:/etc/postgresql/postgresql.conf
+    environment:
+      - POSTGRES_PASSWORD=blank
+      - POSTGRES_DB=test
+    ports:
+      - 15432:5432
+
+  replica-db:
+    container_name: replica-db
+    hostname: replica-db
+    build: ./slave
+    networks:
+      - test
+    volumes:
+      - replica-db:/var/lib/postgresql/data
+      - ./replica-posgres.conf:/etc/postgresql/postgresql.conf
+    environment:
+      - POSTGRES_PASSWORD=blank
+      - POSTGRES_DB=test
+    ports:
+      - 15433:5432
+    depends_on:
+      - master-db
+
+volumes:
+  master-db:
+  replica-db:
+
+networks:
+  test:
